@@ -9,7 +9,7 @@ Adafruit_MPU6050 mpuMiddle;
 WiFiClient client;
 
 char* ssid = "Achyut FF";
-char* password = "bhadri9019*";
+char* password = "";
 char* serverIP = "10.15.40.103"; 
 int port = 8080; 
 
