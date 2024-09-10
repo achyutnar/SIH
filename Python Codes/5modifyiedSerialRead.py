@@ -1,103 +1,87 @@
-import socket
+import serial
 import time
 import pyautogui
 
-
 def scroll_slow_down(Accel):
-    #Accel = 1.5
-    tdelay = Accel*0.5
-    sdisp = int(-1 * (Accel*15))
-    for i in range(0,20):
+    tdelay = Accel * 0.5
+    sdisp = int(-1 * (Accel * 15))
+    for i in range(0, 20):
         pyautogui.vscroll(sdisp)  # Fast and longer scroll up
         time.sleep(tdelay)
 
 def scroll_slow_up(Accel):
-    #Accel = 1.5
-    tdelay = Accel*0.5
-    sdisp = int(Accel*15)
-    for i in range(0,20):
+    tdelay = Accel * 0.5
+    sdisp = int(Accel * 15)
+    for i in range(0, 20):
         pyautogui.vscroll(sdisp)  # Fast and longer scroll up
         time.sleep(tdelay)
 
 def scroll_fast_down(Accel):
-    #Accel = 1.5
-    tdelay = Accel*0.025
-    sdisp = int(-1 * (Accel*25))
-    for i in range(0,20):
+    tdelay = Accel * 0.025
+    sdisp = int(-1 * (Accel * 25))
+    for i in range(0, 20):
         pyautogui.vscroll(sdisp)  # Fast and longer scroll up
         time.sleep(tdelay)
 
 def scroll_fast_up(Accel):
-    #Accel = 1.5
-    tdelay = Accel*0.025
-    sdisp = int(Accel*25)
-    for i in range(0,20):
+    tdelay = Accel * 0.025
+    sdisp = int(Accel * 25)
+    for i in range(0, 20):
         pyautogui.vscroll(sdisp)  # Fast and longer scroll up
         time.sleep(tdelay)
 
-# Independent functions for movement
 def move_left(Accel):
-    freq = int(Accel*3)
-    tdelay = 1/40
-    for i in range(0,freq):
+    freq = int(Accel * 3)
+    tdelay = 1 / 40
+    for i in range(0, freq):
         pyautogui.press('left')
         time.sleep(tdelay)
 
 def move_right(Accel):
-    freq = int(Accel*3)
-    tdelay = 1/40
-    for i in range(0,freq):
+    freq = int(Accel * 3)
+    tdelay = 1 / 40
+    for i in range(0, freq):
         pyautogui.press('right')
         time.sleep(tdelay)
 
-# Independent functions for zooming
 def zoom_in(Accel):
-    #Accel = 1.5
-    pyautogui.hotkey('ctrl', '+')  # Zoom in
-    pyautogui.hotkey('ctrl', '+')  # Zoom in
+    pyautogui.hotkey('ctrl', '+')
+    pyautogui.hotkey('ctrl', '+')
 
 def zoom_out(Accel):
-    #Accel = 1.5
-    pyautogui.hotkey('ctrl', '-')  # Zoom in
-    pyautogui.hotkey('ctrl', '-')  # Zoom in
+    pyautogui.hotkey('ctrl', '-')
+    pyautogui.hotkey('ctrl', '-')
 
 def open_file(file_position):
-    pyautogui.doubleClick(file_position)  # Double-click on the file at the given position
+    pyautogui.doubleClick(file_position)
     time.sleep(2)
 
 def close_file():
-    pyautogui.hotkey('ctrl', 'w')  # Close the file (works in many applications)
-    time.sleep(2)  # Wait for the file to close
+    pyautogui.hotkey('ctrl', 'w')
+    time.sleep(2)
 
-file_position = (607,368)  # (x, y) coordinates of the file
+file_position = (607, 368)  # (x, y) coordinates of the file
 
 def DetectGesture(thumb_angle, middle_angle, index_angle):
     if abs(middle_angle + index_angle) > 140:
         print("zoom in")
         zoom_in(max(middle_angle, index_angle))
-    
     elif abs(index_angle + thumb_angle) > 100:
         print("zoom out")
         zoom_out(max(index_angle, thumb_angle))
     elif abs(thumb_angle) > 40:
         print("move right")
-        # move_right(thumb_angle)
         for i in range(1):
             pyautogui.press('right')
             time.sleep(0.1)
-
     elif abs(index_angle) > 40:
         print("move left")
-        # move_left(index_angle)
         for i in range(1):
             pyautogui.press('left')
             time.sleep(0.1)
 
 def parse_pry_data(data):
-    # Split the data by semicolons to get each finger's data
     finger_data = data.split(';')
-
-    # Initialize arrays to store PRY values for each finger and the palm
     thumb_pry = [0.0, 0.0, 0.0]
     index_pry = [0.0, 0.0, 0.0]
     middle_pry = [0.0, 0.0, 0.0]
@@ -106,7 +90,6 @@ def parse_pry_data(data):
     palm_pry = [0.0, 0.0, 0.0]
 
     for finger in finger_data:
-        # Split each finger's data into the finger name and its values
         parts = finger.split(':')
         if len(parts) == 2:
             finger_name = parts[0]
@@ -117,7 +100,6 @@ def parse_pry_data(data):
                 roll = float(values[1])
                 yaw = float(values[2])
 
-                # Assign values to the corresponding finger or palm arrays
                 if finger_name == "Thumb":
                     thumb_pry[0], thumb_pry[1], thumb_pry[2] = pitch, roll, yaw
                 elif finger_name == "Point":
@@ -134,44 +116,31 @@ def parse_pry_data(data):
     return thumb_pry, index_pry, middle_pry, ring_pry, pinky_pry, palm_pry
 
 if __name__ == "__main__":
-    #s1 = "Middle:0.60,-0.20,0.00"
-    #s2 = "Middle:3.60,1,0.00"
-    #s3 = "Middle:0.60,-0.20,0.00"
+    # Replace with your actual serial port (e.g., 'COM3' for Windows or '/dev/ttyUSB0' for Linux)
+    serial_port = '/dev/ttyUSB0'  # Change this to the actual port your device is connected to
+    baud_rate = 9600  # Set the correct baud rate for your device
 
-    server_ip = '0.0.0.0'  # Listen on all interfaces
-    port = 6969
+    # Initialize serial communication
+    ser = serial.Serial(serial_port, baud_rate, timeout=1)
+    time.sleep(2)  # Allow time for the serial connection to initialize
 
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    d1 = {"Thumb": [], "Middle": [], "Point": []}
 
-    server_socket.bind((server_ip, port))
+    while True:
+        if ser.in_waiting > 0:
+            # Read data from the serial port
+            data = ser.readline().decode('utf-8').strip()
+            print("Received data:", data)
 
-    server_socket.listen(5)
-    print("Server listening on {}:{}".format(server_ip, port))
+            # Parse PRY data from the received string
+            thumb_pry, index_pry, middle_pry, ring_pry, pinky_pry, palm_pry = parse_pry_data(data)
 
-    flag = False
-    count = 0
-    decoded = []
-    d1 = {"Thumb":[] ,"Middle": [], "Point":[],"Ring":[],"Main":[],"Index":[],}
-    # time.sleep(1)
-    while(True):
-        
-            
-        # Establish a connection with a client
-        client_socket, addr = server_socket.accept()
-        # Receive the data
-        data = client_socket.recv(1024).decode('utf-8')
-        client_socket.close()
-        s1 = data
-        time.sleep(1)
-        #dtemp = decode(s1)
-        # data = "Thumb:10,20,30;Index:40,50,60;Middle:70,80,90;Ring:15,25,35;Pinky:45,55,65;Palm:100,110,120"
-        thumb_pry, index_pry, middle_pry, ring_pry, pinky_pry, palm_pry = parse_pry_data(data)
-        
-        d1["Thumb"] = thumb_pry
-        d1["Middle"] = middle_pry
-        d1["Point"] = index_pry
-        d1["Index"]= index_pry
-        d1["Ring"] = ring_pry
-        d1["Main"] = palm_pry
-        print(d1)
-        # DetectGesture(d1["Thumb"][0],d1["Middle"][0],d1["Point"][0])
+            # Update the dictionary with the new PRY values
+            d1["Thumb"] = thumb_pry
+            d1["Middle"] = middle_pry
+            d1["Point"] = index_pry
+
+            print(d1)
+
+            # Detect gestures based on the parsed angles
+            DetectGesture(d1["Thumb"][0], d1["Middle"][0], d1["Point"][0])
