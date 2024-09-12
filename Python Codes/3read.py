@@ -1,8 +1,6 @@
 import socket
 import time
 import pyautogui
-
-
 def scroll_slow_down(Accel):
     #Accel = 1.5
     tdelay = Accel*0.5
@@ -72,19 +70,24 @@ def close_file():
 file_position = (607,368)  # (x, y) coordinates of the file
 
 def DetectGesture(thumb_angle, middle_angle, index_angle):
+    
     if abs(middle_angle + index_angle) > 140:
         print("zoom in")
         zoom_in(max(middle_angle, index_angle))
+        time.sleep(0.5)
     
     elif abs(index_angle + thumb_angle) > 100:
         print("zoom out")
         zoom_out(max(index_angle, thumb_angle))
+        time.sleep(0.5)
+    
     elif abs(thumb_angle) > 40:
         print("move right")
         # move_right(thumb_angle)
         for i in range(1):
             pyautogui.press('right')
-            time.sleep(0.1)
+        time.sleep(0.5)
+    
 
     elif abs(index_angle) > 40:
         print("move left")
@@ -92,6 +95,8 @@ def DetectGesture(thumb_angle, middle_angle, index_angle):
         for i in range(1):
             pyautogui.press('left')
             time.sleep(0.1)
+        time.sleep(0.5)
+    
 
 def parse_pry_data(data):
     # Split the data by semicolons to get each finger's data
@@ -106,7 +111,7 @@ def parse_pry_data(data):
     palm_pry = [0.0, 0.0, 0.0]
 
     for finger in finger_data:
-        # Split each finger's data into the finger name and its values
+        # Split each finger's data into the finjger name and its values
         parts = finger.split(':')
         if len(parts) == 2:
             finger_name = parts[0]
@@ -137,9 +142,8 @@ if __name__ == "__main__":
     #s1 = "Middle:0.60,-0.20,0.00"
     #s2 = "Middle:3.60,1,0.00"
     #s3 = "Middle:0.60,-0.20,0.00"
-
     server_ip = '0.0.0.0'  # Listen on all interfaces
-    port = 6969
+    port = 7001
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -162,7 +166,6 @@ if __name__ == "__main__":
         data = client_socket.recv(1024).decode('utf-8')
         client_socket.close()
         s1 = data
-        time.sleep(1)
         #dtemp = decode(s1)
         # data = "Thumb:10,20,30;Index:40,50,60;Middle:70,80,90;Ring:15,25,35;Pinky:45,55,65;Palm:100,110,120"
         thumb_pry, index_pry, middle_pry, ring_pry, pinky_pry, palm_pry = parse_pry_data(data)
@@ -174,4 +177,4 @@ if __name__ == "__main__":
         d1["Ring"] = ring_pry
         d1["Main"] = palm_pry
         print(d1)
-        # DetectGesture(d1["Thumb"][0],d1["Middle"][0],d1["Point"][0])
+        DetectGesture(d1["Thumb"][0],d1["Middle"][0],d1["Point"][0])
